@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BSA Vocabulary 1–12 Interactive Mastery Arcade</title>
+<style>
+:root{--bg:#f7f7fb;--ink:#15151c;--card:#fff;--accent:#6c4cff;--good:#087f5b;--bad:#c92a2a;--muted:#666;--line:#ddd}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:#171722;color:#fff;padding:18px 22px;border-bottom:6px solid var(--accent)}
+header h1{margin:0;font-size:clamp(24px,4vw,40px)} header p{margin:6px 0 0}
+main{max-width:1050px;margin:auto;padding:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 3px 12px #0001}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.mode{cursor:pointer;border:2px solid #ddd;border-radius:14px;padding:16px;background:#fff;text-align:left}
+.mode:hover,.mode:focus{border-color:var(--accent);transform:translateY(-1px)} button{font:inherit;cursor:pointer}
+.primary{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:10px 15px;font-weight:700}.secondary{background:#fff;border:1px solid #aaa;border-radius:10px;padding:10px 15px}
+input,select,textarea{font:inherit;padding:10px;border:1px solid #aaa;border-radius:8px;width:100%}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}
+.option{display:block;width:100%;text-align:left;margin:8px 0;padding:12px;border:1px solid #bbb;border-radius:10px;background:#fff}.option:hover{border-color:var(--accent)}
+.good{border-color:var(--good)!important;background:#e6fcf5!important}.bad{border-color:var(--bad)!important;background:#fff5f5!important}.muted{color:var(--muted)}
+.score{font-size:22px;font-weight:700}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#eee;margin:3px}.hidden{display:none}
+.progress{height:12px;background:#e9ecef;border-radius:99px;overflow:hidden}.progress>div{height:100%;background:var(--accent)}
+.bigword{font-size:clamp(30px,7vw,64px);font-weight:900;letter-spacing:2px;text-align:center;margin:18px}
+table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:9px;text-align:left}th{background:#f1f3f5}
+@media print{header,.no-print,#menu,#setup{display:none!important}.card{box-shadow:none;border:0}body{background:#fff}}
+</style></head>
+<body>
+<header><h1>BSA Vocabulary 1–12: Mastery Arcade</h1><p>12 words • instant feedback • saved progress • exportable score report</p></header>
+<main>
+<section id="setup" class="card">
+<h2>Student Check-In</h2><div class="row"><label>Name<input id="student" placeholder="First and last name"></label><label>Class / Period<input id="className" placeholder="Class or period"></label></div>
+<p class="muted">Your progress is saved only in this browser. Use “Export Results” when finished so your teacher can collect your score in Google Classroom.</p>
+</section>
+<section id="menu" class="card">
+<h2>Choose an Activity</h2>
+<div class="grid">
+<button class="mode" onclick="start('matching')"><b>1. Definition Match</b><br><span class="muted">Match each word to its meaning.</span></button>
+<button class="mode" onclick="start('synonym')"><b>2. Synonym Sprint</b><br><span class="muted">Choose the closest meaning.</span></button>
+<button class="mode" onclick="start('antonym')"><b>3. Antonym Attack</b><br><span class="muted">Find the opposite.</span></button>
+<button class="mode" onclick="start('context')"><b>4. Context Clues</b><br><span class="muted">Choose the word that fits the sentence.</span></button>
+<button class="mode" onclick="start('spelling')"><b>5. Spelling Challenge</b><br><span class="muted">Type the word from its definition.</span></button>
+<button class="mode" onclick="start('mixed')"><b>6. Mixed Mastery Check</b><br><span class="muted">24 randomized, graded questions.</span></button>
+</div>
+<div style="margin-top:14px" class="row no-print"><button class="secondary" onclick="showReport()">View Progress</button><button class="secondary" onclick="exportCSV()">Export Results (.csv)</button><button class="secondary" onclick="resetAll()">Reset This Device</button></div>
+</section>
+<section id="game" class="card hidden"></section>
+<section id="report" class="card hidden"></section>
+</main>
+<script>
+const WORDS=[{"word": "pacify", "pos": "verb", "definition": "to bring or restore to a state of peace; to appease", "syn": ["appease", "console", "comfort", "soothe", "calm"], "ant": ["anger", "annoy", "irritate", "aggravate"]}, {"word": "benevolent", "pos": "adjective", "definition": "having or marked by sympathy and consideration for others", "syn": ["kind", "compassionate", "sympathetic", "charitable", "caring"], "ant": ["cruel", "vicious", "unkind", "malicious"]}, {"word": "vilify", "pos": "verb", "definition": "to make untrue and harmful statements about", "syn": ["humiliate", "smear", "discredit", "slander", "defame"], "ant": ["honor", "praise", "commend", "celebrate"]}, {"word": "adorn", "pos": "verb", "definition": "to add beauty to; to decorate or beautify", "syn": ["decorate", "beautify", "embellish", "enrich"], "ant": ["spoil", "scar", "deface", "mar"]}, {"word": "obstacle", "pos": "noun", "definition": "a thing that blocks one's way or prevents or hinders progress", "syn": ["hurdle", "barrier", "hindrance", "block"], "ant": ["advantage", "help", "aid", "benefit"]}, {"word": "zealous", "pos": "adjective", "definition": "feeling or showing energetic support for a person or cause", "syn": ["dedicated", "enthusiastic", "passionate", "devoted"], "ant": ["disinterested", "apathetic", "indifferent", "unenthusiastic"]}, {"word": "aggravate", "pos": "verb", "definition": "to make someone angry or irritated, especially by bothering repeatedly", "syn": ["annoy", "irritate", "bother", "provoke"], "ant": ["please", "soothe", "calm", "pacify"]}, {"word": "tirade", "pos": "noun", "definition": "a long, angry speech, criticism, or scolding", "syn": ["outburst", "rant", "diatribe", "harangue"], "ant": ["praise", "compliment", "applause", "commendation"]}, {"word": "evade", "pos": "verb", "definition": "to get away from or avoid something, often by being sneaky or clever", "syn": ["avoid", "escape", "dodge", "elude"], "ant": ["confront", "face", "meet", "approach"]}, {"word": "anomaly", "pos": "noun", "definition": "something unusual, unexpected, or out of the ordinary", "syn": ["abnormality", "rarity", "oddity", "irregularity"], "ant": ["normality", "regularity", "standard", "norm"]}, {"word": "conspicuous", "pos": "adjective", "definition": "noticeable or obvious to the eye or mind", "syn": ["noticeable", "prominent", "unmistakable", "obvious"], "ant": ["hidden", "unclear", "inconspicuous", "subtle"]}, {"word": "docile", "pos": "adjective", "definition": "easily taught, led, managed, or controlled", "syn": ["gentle", "manageable", "compliant", "mild"], "ant": ["threatening", "aggressive", "destructive", "unmanageable"]}];
+const CONTEXTS=[["The counselor spoke calmly to _____ the upset student after the disagreement.", "pacify"], ["The _____ neighbor regularly checked on elderly residents and brought them groceries.", "benevolent"], ["It is unfair to _____ someone online by spreading harmful lies about them.", "vilify"], ["Students used posters and streamers to _____ the hallway for spirit week.", "adorn"], ["A fallen tree became an _____ that blocked the hiking trail.", "obstacle"], ["The _____ fans cheered energetically for their team from start to finish.", "zealous"], ["Repeated tapping on the desk began to _____ the student who was trying to concentrate.", "aggravate"], ["After the unfair call, the coach launched into a long _____ about the referee's decision.", "tirade"], ["The rabbit darted through the bushes to _____ the pursuing dog.", "evade"], ["A snowstorm in July would be an _____ in this region.", "anomaly"], ["Her bright neon backpack was _____ in the crowd of black bags.", "conspicuous"], ["The calm, _____ horse followed the trainer's directions easily.", "docile"]];
+const KEY='bsa_vocab_1_12_results_v1';
+let state={mode:'',items:[],i:0,correct:0,answers:[],locked:false};
+
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function saveProfile(){localStorage.setItem('bsa_vocab_name',student.value);localStorage.setItem('bsa_vocab_class',className.value)}
+student.value=localStorage.getItem('bsa_vocab_name')||''; className.value=localStorage.getItem('bsa_vocab_class')||'';
+student.oninput=saveProfile;className.oninput=saveProfile;
+
+function start(mode){
+ if(!student.value.trim()){alert('Please enter your name first.');student.focus();return}
+ saveProfile(); state={mode,items:makeItems(mode),i:0,correct:0,answers:[],locked:false};
+ menu.classList.add('hidden'); setup.classList.add('hidden'); report.classList.add('hidden'); game.classList.remove('hidden'); render();
+}
+function makeItems(mode){
+ if(mode==='matching') return shuffle(WORDS).map(w=>({type:'definition',w}));
+ if(mode==='synonym') return shuffle(WORDS).map(w=>({type:'synonym',w}));
+ if(mode==='antonym') return shuffle(WORDS).map(w=>({type:'antonym',w}));
+ if(mode==='context') return shuffle(CONTEXTS).map(([s,a])=>({type:'context',sentence:s,w:WORDS.find(x=>x.word===a)}));
+ if(mode==='spelling') return shuffle(WORDS).map(w=>({type:'spelling',w}));
+ let pool=[];
+ WORDS.forEach(w=>{pool.push({type:'definition',w},{type:'synonym',w},{type:'antonym',w},{type:'spelling',w})});
+ CONTEXTS.forEach(([s,a])=>pool.push({type:'context',sentence:s,w:WORDS.find(x=>x.word===a)}));
+ return shuffle(pool).slice(0,24);
+}
+function distractWords(correct,n=3){return shuffle(WORDS.filter(x=>x.word!==correct.word)).slice(0,n).map(x=>x.word)}
+function distractDefs(correct,n=3){return shuffle(WORDS.filter(x=>x.word!==correct.word)).slice(0,n).map(x=>x.definition)}
+function makeChoices(item){
+ let c;
+ if(item.type==='definition') c=shuffle([item.w.definition,...distractDefs(item.w)]);
+ else if(item.type==='synonym') c=shuffle([item.w.syn[0],...shuffle(WORDS.filter(x=>x.word!==item.w.word).flatMap(x=>x.syn)).slice(0,3)]);
+ else if(item.type==='antonym') c=shuffle([item.w.ant[0],...shuffle(WORDS.filter(x=>x.word!==item.w.word).flatMap(x=>x.ant)).slice(0,3)]);
+ else if(item.type==='context') c=shuffle([item.w.word,...distractWords(item.w)]);
+ return c;
+}
+function promptText(it){
+ if(it.type==='definition')return `Which definition matches <b>${it.w.word}</b> (${it.w.pos})?`;
+ if(it.type==='synonym')return `Which word is a <b>synonym</b> for <b>${it.w.word}</b>?`;
+ if(it.type==='antonym')return `Which word is an <b>antonym</b> for <b>${it.w.word}</b>?`;
+ if(it.type==='context')return it.sentence.replace('_____','<b>_____</b>');
+ return `Spell the vocabulary word that means:<br><b>${it.w.definition}</b> <span class="muted">(${it.w.pos})</span>`;
+}
+function correctAnswer(it){if(it.type==='definition')return it.w.definition;if(it.type==='synonym')return it.w.syn[0];if(it.type==='antonym')return it.w.ant[0];return it.w.word}
+function render(){
+ let it=state.items[state.i], pct=Math.round(state.i/state.items.length*100);
+ let h=`<div class="row"><div><b>${label(state.mode)}</b></div><div style="text-align:right">Question ${state.i+1} of ${state.items.length}</div></div><div class="progress"><div style="width:${pct}%"></div></div><h2>${promptText(it)}</h2><div id="choices">`;
+ if(it.type==='spelling') h+=`<input id="spell" autocomplete="off" autocapitalize="none" placeholder="Type the vocabulary word"><button class="primary" style="margin-top:10px" onclick="submitSpell()">Check Answer</button>`;
+ else makeChoices(it).forEach(c=>h+=`<button class="option" onclick='answer(this,${JSON.stringify(c)})'>${c}</button>`);
+ h+=`</div><div id="feedback"></div><div class="no-print" style="margin-top:14px"><button class="secondary" onclick="quit()">Back to Menu</button></div>`;
+ game.innerHTML=h; if(it.type==='spelling')setTimeout(()=>document.getElementById('spell').focus(),50);
+}
+function answer(btn,val){
+ if(state.locked)return; state.locked=true; let it=state.items[state.i], ans=correctAnswer(it), ok=val.toLowerCase()===ans.toLowerCase();
+ btn.classList.add(ok?'good':'bad'); finishQuestion(ok,val,ans,it);
+}
+function submitSpell(){if(state.locked)return;let el=document.getElementById('spell'),val=el.value.trim();if(!val)return;state.locked=true;let it=state.items[state.i],ans=it.w.word,ok=val.toLowerCase()===ans.toLowerCase();el.classList.add(ok?'good':'bad');finishQuestion(ok,val,ans,it)}
+function finishQuestion(ok,val,ans,it){
+ if(ok)state.correct++; state.answers.push({word:it.w.word,type:it.type,response:val,answer:ans,correct:ok});
+ feedback.innerHTML=`<p class="${ok?'good':'bad'}" style="padding:10px;border-radius:8px"><b>${ok?'Correct!':'Not quite.'}</b> ${ok?'':`Correct answer: <b>${ans}</b>.`}<br><span class="muted">${it.w.word}: ${it.w.definition}</span></p><button class="primary" onclick="next()">Next</button>`;
+}
+function next(){state.i++;state.locked=false;if(state.i>=state.items.length)complete();else render()}
+function complete(){
+ let pct=Math.round(state.correct/state.items.length*100), rec={date:new Date().toLocaleString(),name:student.value.trim(),className:className.value.trim(),mode:label(state.mode),score:state.correct,total:state.items.length,pct,answers:state.answers};
+ let all=JSON.parse(localStorage.getItem(KEY)||'[]');all.push(rec);localStorage.setItem(KEY,JSON.stringify(all));
+ game.innerHTML=`<h2>Activity Complete</h2><p class="score">${state.correct}/${state.items.length} = ${pct}%</p><p>${pct>=80?'Mastery target reached!':'Review missed words and try again.'}</p><div class="row no-print"><button class="primary" onclick="showReport()">View / Export Results</button><button class="secondary" onclick="quit()">Choose Another Activity</button></div>`;
+}
+function quit(){game.classList.add('hidden');report.classList.add('hidden');setup.classList.remove('hidden');menu.classList.remove('hidden')}
+function label(m){return ({matching:'Definition Match',synonym:'Synonym Sprint',antonym:'Antonym Attack',context:'Context Clues',spelling:'Spelling Challenge',mixed:'Mixed Mastery Check'})[m]}
+function showReport(){
+ setup.classList.add('hidden');menu.classList.add('hidden');game.classList.add('hidden');report.classList.remove('hidden');
+ let all=JSON.parse(localStorage.getItem(KEY)||'[]');
+ let rows=all.map((r,i)=>`<tr><td>${r.date}</td><td>${r.mode}</td><td>${r.score}/${r.total}</td><td>${r.pct}%</td></tr>`).join('');
+ let latest=all[all.length-1], misses=latest?latest.answers.filter(a=>!a.correct):[];
+ report.innerHTML=`<h2>Vocabulary Progress Report</h2><p><b>Student:</b> ${student.value||'—'} &nbsp; <b>Class:</b> ${className.value||'—'}</p>
+ <table><thead><tr><th>Date</th><th>Activity</th><th>Score</th><th>Percent</th></tr></thead><tbody>${rows||'<tr><td colspan="4">No completed activities yet.</td></tr>'}</tbody></table>
+ ${latest?`<h3>Most Recent Missed Items</h3>${misses.length?misses.map(x=>`<span class="pill">${x.word}</span>`).join(''):'<p>None — perfect score!</p>'}`:''}
+ <div class="row no-print" style="margin-top:16px"><button class="primary" onclick="exportCSV()">Export Results (.csv)</button><button class="secondary" onclick="window.print()">Print / Save as PDF</button><button class="secondary" onclick="quit()">Back</button></div>`;
+}
+function csvSafe(s){return '"'+String(s??'').replaceAll('"','""')+'"'}
+function exportCSV(){
+ let all=JSON.parse(localStorage.getItem(KEY)||'[]');if(!all.length){alert('Complete at least one activity first.');return}
+ let lines=[['Student','Class','Date','Activity','Score','Total','Percent','Missed Words'].map(csvSafe).join(',')];
+ all.forEach(r=>lines.push([r.name,r.className,r.date,r.mode,r.score,r.total,r.pct,r.answers.filter(a=>!a.correct).map(a=>a.word).join('; ')].map(csvSafe).join(',')));
+ let blob=new Blob([lines.join('\n')],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(student.value.trim().replace(/\W+/g,'_')||'student')+'_BSA_Vocab_Results.csv';a.click();URL.revokeObjectURL(a.href);
+}
+function resetAll(){if(confirm('Erase all saved scores on this browser?')){localStorage.removeItem(KEY);alert('Saved scores erased.')}}
+</script></body></html>
