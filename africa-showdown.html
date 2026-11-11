@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Africa Showdown | 7th Grade Social Studies</title>
+<style>
+:root{--green:#24543f;--green2:#347557;--gold:#f2c14e;--cream:#fffaf0;--ink:#203128;--muted:#64736a;--red:#b84444;--line:#d9e3dc}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#edf5ef,#fff7e5);font-family:Arial,Helvetica,sans-serif;color:var(--ink);min-height:100vh}
+header{background:var(--green);color:white;padding:22px 16px;text-align:center;border-bottom:6px solid var(--gold)}
+header h1{margin:0;font-size:clamp(28px,5vw,44px);letter-spacing:1px}header p{margin:8px 0 0;color:#e6f1e9}
+main{max-width:1050px;margin:22px auto;padding:0 14px 35px}.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 8px 24px #183b2512;margin-bottom:16px}
+h2{color:var(--green);margin:0 0 12px}.muted{color:var(--muted)}button{border:0;border-radius:12px;padding:12px 17px;font-size:15px;font-weight:700;cursor:pointer;background:var(--green2);color:white;transition:.15s}button:hover{filter:brightness(1.08);transform:translateY(-1px)}button:disabled{opacity:.45;cursor:not-allowed;transform:none}.secondary{background:#eaf2ec;color:var(--green)}.gold{background:var(--gold);color:#342b12}.danger{background:#f8e8e6;color:#8f3030}
+input[type=text]{padding:12px;border:1px solid #bdcec2;border-radius:10px;font-size:16px;width:100%;max-width:320px}
+.topline{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}.stats{display:flex;gap:10px;flex-wrap:wrap}.stat{background:#eff5f0;border-radius:12px;padding:9px 13px;font-weight:700;color:var(--green)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.category{min-height:100px;text-align:left;background:#f5f8f5;color:var(--green);border:2px solid var(--line);display:flex;flex-direction:column;justify-content:space-between}.category span{font-size:25px}.category small{color:var(--muted);font-weight:500}
+.question{font-size:clamp(20px,3vw,27px);line-height:1.3;margin:12px 0 20px}.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.choice{background:#f5f8f5;color:var(--ink);border:2px solid var(--line);text-align:left;min-height:56px}.choice.correct{background:#e1f4e6;border-color:#4b9b62;color:#174c2b}.choice.wrong{background:#fae6e4;border-color:#c45b55;color:#762c29}
+.feedback{margin-top:15px;padding:13px;border-radius:12px;font-weight:700}.feedback.good{background:#e4f5e8;color:#205b32}.feedback.bad{background:#fff0e8;color:#874321}
+.progress{height:10px;background:#e8eee9;border-radius:20px;overflow:hidden;margin:12px 0}.progress div{height:100%;background:var(--gold);width:0;transition:width .25s}
+.hidden{display:none!important}.teamrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:10px 0}.teamrow label{font-weight:700;color:var(--green)}.teamrow input{flex:1;min-width:180px}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:12px}
+@media(max-width:550px){.panel{padding:15px}.topline{align-items:flex-start}.choice{min-height:52px}}
+</style>
+</head>
+<body>
+<header><h1>🌍 AFRICA SHOWDOWN!</h1><p>7th Grade Social Studies • Unit 1 Review Challenge</p></header>
+<main>
+<section class="panel" id="setup">
+<h2>Ready to play?</h2>
+<p class="muted">Choose a team mode, enter team names, and challenge your knowledge of Africa’s geography, environment, people, government, economy, and history.</p>
+<div class="teamrow"><label for="team1">Team 1</label><input id="team1" type="text" value="Savanna Stars"></div>
+<div class="teamrow"><label for="team2">Team 2</label><input id="team2" type="text" value="Nile Navigators"></div>
+<div class="teamrow"><label for="mode">Play mode</label><select id="mode" style="padding:11px;border:1px solid #bdcec2;border-radius:10px;font-size:15px"><option value="teams">Two-team showdown</option><option value="solo">Solo practice</option></select></div>
+<button onclick="startGame()">Start the challenge</button>
+<p class="muted" style="font-size:13px;margin-bottom:0">How scoring works: regular questions are worth 1 point. Lightning questions are worth 2 points. In team mode, teams take turns.</p>
+</section>
+<section class="panel hidden" id="game">
+<div class="topline"><div class="stats"><div class="stat" id="roundLabel">Round</div><div class="stat" id="turnLabel">Turn</div></div><div class="stats"><div class="stat" id="score1">Team 1: 0</div><div class="stat" id="score2">Team 2: 0</div></div></div>
+<div class="progress"><div id="progressBar"></div></div>
+<div class="topline"><span class="muted" id="counter">Question 1</span><button class="secondary" onclick="goHome()">Exit game</button></div>
+<div id="questionArea"><p class="muted" id="category"></p><div class="question" id="questionText"></div><div class="choices" id="choices"></div><div id="feedback" class="feedback hidden" aria-live="polite"></div><div style="display:flex;justify-content:flex-end;margin-top:16px"><button id="nextBtn" class="gold hidden" onclick="nextQuestion()">Next question →</button></div></div>
+</section>
+<section class="panel hidden" id="finish"><h2>🏆 Challenge complete!</h2><p id="winner" class="question"></p><div class="stats" id="finalScores"></div><p class="muted">Keep practicing the topics that were tricky. You can play again and try a different category order.</p><button onclick="restartGame()">Play again</button> <button class="secondary" onclick="showLightning()">Lightning round</button></section>
+<section class="panel hidden" id="lightning"><h2>⚡ Lightning Round</h2><p class="muted">No multiple choice! Type the answer. Each correct answer is worth 2 points.</p><div class="topline"><div class="stat" id="lightTurn">Team 1's turn</div><div class="stat" id="lightScore">Score</div></div><p class="question" id="lightQuestion"></p><div class="teamrow"><input id="lightAnswer" type="text" placeholder="Type your answer…" autocomplete="off"><button onclick="checkLightning()">Submit</button></div><div id="lightFeedback" class="feedback hidden" aria-live="polite"></div><div class="topline" style="margin-top:14px"><span class="muted" id="lightCount"></span><button id="lightNext" class="gold hidden" onclick="nextLightning()">Next →</button></div></section>
+<footer>Based on the uploaded Africa Section I Review and Africa Review Crossword Puzzle.</footer>
+</main>
+<script>
+const questions = [
+["Geography","What desert covers most of northern Africa?",["Sahel","Sahara","Savanna","Kalahari"],1],
+["Geography","What is Africa’s transition zone between desert and rainforest?",["Sahel","Sahara","Savanna","Kalahari"],0],
+["Geography","Which African landform has rolling grassland and scattered trees?",["Sahel","Kalahari","Isthmus","Savanna"],3],
+["Geography","Which lake is identified in the review as the longest lake in the world?",["Lake Tanganyika","Lake Okeechobee","Lake Mead","Lake Victoria"],0],
+["Geography","What desert is located in southern Africa?",["Kalahari","Sahel","Sahara","Gobi"],0],
+["Geography","What is the world’s longest river, according to the review?",["Niger","Rhine","Congo","Nile"],3],
+["Geography","What mountain range is located in northern Africa?",["Atlas","Himalayan","Andes","Pyrenees"],0],
+["Geography","What is the largest lake in Africa?",["Lake Victoria","Lake Tanganyika","Lake Orange","Lake Mead"],0],
+["Geography","Which African river near the equator is located in the tropical rainforest?",["Nile","Niger","Congo","Mekong"],2],
+["Geography","Which river is the principal river in western Africa?",["Nile","Niger","Congo","Mekong"],1],
+["Environment","What is a result of deforestation?",["Rain washes soil away","Nutrients in soil wash away","Sun bakes exposed soil","All of the above"],3],
+["Environment","What is desertification?",["Spread of desert area","Decrease in desert area","African farming practice","A way of getting used to desert heat"],0],
+["Environment","What can cause desertification?",["Deforestation","Overgrazing","Slash-and-burn agriculture","All of the above"],3],
+["People & Culture","Where does most of Africa’s population live, according to the review?",["In mud huts","Near a river, lake, or coastline","Spends summers elsewhere","In crowded cities"],1],
+["People & Culture","What are the two main religious groups in Africa according to the review?",["Catholic and Methodist","Hindu and Buddhist","Muslim and Hindu","Muslim and Christian"],3],
+["People & Culture","Which is an example of an ethnic group?",["Arab","Ashanti","Muslim","Both A and B"],3],
+["People & Culture","Most African languages can be traced to which group, according to the review?",["Bantu ethnic group","Muslim ethnic group","Swahili ethnic group","Kente ethnic group"],0],
+["People & Culture","A high literacy rate generally leads to what?",["A high crime rate","High standard of living","High agricultural production","Both B and C"],3],
+["People & Culture","How does the review describe the literacy rate in Africa?",["High","Low","Higher for men than women","Both B and C"],3],
+["Government","Which type of government is a loose alliance?",["Confederation","Federal","Unitary","Parliamentary"],0],
+["Government","In which government does one leader hold complete power?",["Democracy","Republic","Oligarchy","Autocracy"],3],
+["Government","In which government does a small group hold power?",["Oligarchy","Autocracy","Democracy","Republic"],0],
+["Government","In which system does the legislature hold power, according to the review?",["Parliamentary","Federal","Presidential","Both A and C"],0],
+["Government","What type of government does Kenya have according to the review?",["Monarchy","Republic","Dictatorship","Autocracy"],1],
+["Government","Which country is identified in the review as having a dictator?",["Sudan","South Africa","Kenya","Egypt"],0],
+["Economy","Which is an example of entrepreneurship?",["Working at a factory","Teaching at a school","Starting a computer repair business","Both A and B"],2],
+["People & Culture","According to the review, who gets better access to school in Africa?",["Girls","Boys","Children under age 10","There are no schools in Africa"],0],
+["Economy","What has led to famine in Africa according to the review?",["Repeated drought","AIDS deaths reducing workforce","Infertile soil and erosion","All of the above"],3],
+["Economy","Which economic system is based on supply and demand?",["Market","Command","Traditional","Communist"],0],
+["Economy","Which country is identified in the review as having the strongest economy in Africa?",["Nigeria","Botswana","South Africa","Namibia"],2],
+["Economy","A tax placed on imported goods is called what?",["Tariff","Quota","Embargo","Boycott"],0],
+["Economy","Which is an example of a capital investment?",["Buying a hamburger","Building a factory","Cutting down trees","Hiring a store manager"],1],
+["History","What did the European division of Africa cause, according to the review?",["Tribal conflicts","Civil war","Desire for independence","All of the above"],3],
+["History","A strong belief in one’s country is called what?",["Democracy","Nationalism","Protectionism","Isolationism"],1],
+["History","In 1963, Kenya achieved independence from which country?",["Great Britain","France","Spain","Denmark"],0],
+["People & Culture","Which country has more than 250 ethnic groups according to the review?",["Kenya","Nigeria","South Africa","Rwanda"],1],
+["History","Apartheid separated Black and white people in which country?",["Kenya","Nigeria","South Africa","Sudan"],2],
+["History","Who was arrested and imprisoned for resisting apartheid?",["Nelson Mandela","F. W. de Klerk","Martin Luther King, Jr.","Winnie Mandela"],0],
+["History","What was the goal of the Pan-African movement?",["Abolish the slave trade in Africa","Elect democratic leaders","Unite Africans to solve Africa’s problems","Create more jobs"],2],
+["Economy","Which country has lots of oil, but its people are very poor, according to the review?",["Kenya","South Africa","Mali","Nigeria"],3]
+];
+const lightning = [
+["What is the transition zone between the Sahara and wetter regions called?","sahel"],
+["What is the name of the rolling grassland with scattered trees?","savanna"],
+["What is the removal of trees called?","deforestation"],
+["What is the spread of desert area called?","desertification"],
+["What is the washing away of good soil called?","soil erosion"],
+["What is a long period with little or no rain called?","drought"],
+["What is a tax on imported goods called?","tariff"],
+["What word means a strong belief in one’s country?","nationalism"],
+["What is the South African system of racial separation called?","apartheid"],
+["What is the name of the movement that sought to unite Africans to solve Africa’s problems?","pan-african movement"]
+];
+let order=[], index=0, scores=[0,0], turn=0, mode="teams", answered=false, lightIndex=0;
+const $=id=>document.getElementById(id);
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function startGame(){mode=$("mode").value;scores=[0,0];turn=0;index=0;order=shuffle(questions.map((_,i)=>i));$("setup").classList.add("hidden");$("finish").classList.add("hidden");$("lightning").classList.add("hidden");$("game").classList.remove("hidden");render()}
+function render(){const q=questions[order[index]];answered=false;$("category").textContent=q[0].toUpperCase()+" ROUND";$("questionText").textContent=q[1];$("choices").innerHTML="";q[2].forEach((c,i)=>{let b=document.createElement("button");b.className="choice";b.textContent=String.fromCharCode(65+i)+". "+c;b.onclick=()=>choose(i,b);$("choices").appendChild(b)});$("feedback").className="feedback hidden";$("nextBtn").classList.add("hidden");$("roundLabel").textContent=q[0];$("turnLabel").textContent=mode==="solo"?"Solo practice":teamName(turn)+"'s turn";$("score1").textContent=teamName(0)+": "+scores[0];$("score2").textContent=mode==="solo"?"":teamName(1)+": "+scores[1];$("counter").textContent=`Question ${index+1} of ${order.length}`;$("progressBar").style.width=(index/order.length*100)+"%"}
+function teamName(i){return ($("team"+(i+1)).value.trim()||"Team "+(i+1))}
+function choose(choice,btn){if(answered)return;answered=true;const q=questions[order[index]],correct=q[3],buttons=[...$("choices").children];buttons.forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add("correct");else if(i===choice)b.classList.add("wrong")});const good=choice===correct;if(good)scores[mode==="solo"?0:turn]++;$("feedback").className="feedback "+(good?"good":"bad");$("feedback").textContent=good?"✓ Correct! +1 point.":"Not quite. The correct answer is "+String.fromCharCode(65+correct)+". "+q[2][correct]+".";$("score1").textContent=teamName(0)+": "+scores[0];$("score2").textContent=mode==="solo"?"":teamName(1)+": "+scores[1];$("nextBtn").classList.remove("hidden");$("nextBtn").textContent=index===order.length-1?"See final score →":"Next question →"}
+function nextQuestion(){if(!answered)return;if(index===order.length-1){finish();return}index++;if(mode==="teams")turn=1-turn;render()}
+function finish(){$("game").classList.add("hidden");$("finish").classList.remove("hidden");let result=mode==="solo"?"You scored "+scores[0]+" out of "+questions.length+" points.":scores[0]===scores[1]?"It’s a tie!":teamName(scores[0]>scores[1]?0:1)+" wins!";$("winner").textContent=result;$("finalScores").innerHTML=`<div class="stat">${teamName(0)}: ${scores[0]}</div>`+(mode==="solo"?"":`<div class="stat">${teamName(1)}: ${scores[1]}</div>`)}
+function restartGame(){$("finish").classList.add("hidden");$("setup").classList.remove("hidden");$("game").classList.add("hidden");$("lightning").classList.add("hidden")}
+function goHome(){restartGame()}
+function showLightning(){$("finish").classList.add("hidden");$("lightning").classList.remove("hidden");lightIndex=0;renderLightning()}
+function renderLightning(){$("lightQuestion").textContent=lightning[lightIndex][0];$("lightAnswer").value="";$("lightFeedback").className="feedback hidden";$("lightNext").classList.add("hidden");$("lightCount").textContent=`Question ${lightIndex+1} of ${lightning.length}`;$("lightTurn").textContent=mode==="solo"?"Solo practice":teamName(turn)+"'s turn";$("lightScore").textContent=teamName(0)+": "+scores[0]+(mode==="solo"?"":"  •  "+teamName(1)+": "+scores[1]);$("lightAnswer").disabled=false}
+function checkLightning(){const given=$("lightAnswer").value.trim().toLowerCase().replace(/[^a-z0-9 ]/g,"").replace(/\s+/g," ");if(!given)return;const answer=lightning[lightIndex][1],accepted=[answer];if(answer==="savanna")accepted.push("savannah");if(answer==="pan-african movement")accepted.push("pan african movement");const good=accepted.includes(given);if(good)scores[mode==="solo"?0:turn]+=2;$("lightFeedback").className="feedback "+(good?"good":"bad");$("lightFeedback").textContent=good?"✓ Correct! +2 points.":"The expected answer is: "+lightning[lightIndex][1]+".";$("lightAnswer").disabled=true;$("lightNext").classList.remove("hidden");$("lightNext").textContent=lightIndex===lightning.length-1?"Finish →":"Next →";$("lightScore").textContent=teamName(0)+": "+scores[0]+(mode==="solo"?"":"  •  "+teamName(1)+": "+scores[1])}
+function nextLightning(){if(lightIndex===lightning.length-1){$("lightning").classList.add("hidden");$("finish").classList.remove("hidden");$("winner").textContent=mode==="solo"?"Lightning round complete! Final score: "+scores[0]+".":scores[0]===scores[1]?"The final result is a tie!":teamName(scores[0]>scores[1]?0:1)+" wins the final challenge!";$("finalScores").innerHTML=`<div class="stat">${teamName(0)}: ${scores[0]}</div>`+(mode==="solo"?"":`<div class="stat">${teamName(1)}: ${scores[1]}</div>`);return}lightIndex++;if(mode==="teams")turn=1-turn;renderLightning()}
+</script>
+</body>
+</html>
